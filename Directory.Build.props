@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <MaintainIQTargetFramework>net10.0</MaintainIQTargetFramework>
+    <MaintainIQTargetFramework>net9.0</MaintainIQTargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>

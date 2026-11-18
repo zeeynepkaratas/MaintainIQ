@@ -12,7 +12,7 @@ dotnet test MaintainIQ.sln
 dotnet run --project src/MaintainIQ.UI
 ```
 
-Proje .NET 10 LTS ve DevExpress WinForms 25.2.3 kullanır. İlk ekrandaki boş grid ve tema düğmesi kurulum kontrolü içindir. Veritabanı bağlantısı bu aşamada gerekli değildir.
+Proje .NET 9 ve DevExpress WinForms 25.2.3 kullanır. Bu hedef, kurulu Visual Studio 2022 17.14 ile uyumludur. İlk ekrandaki boş grid ve tema düğmesi kurulum kontrolü içindir. Veritabanı bağlantısı bu aşamada gerekli değildir.
 
 ## Projeler
 
