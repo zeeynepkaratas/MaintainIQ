@@ -1,0 +1,17 @@
+@startuml
+title Ekipman Durum Makinesi
+hide empty description
+
+[*] --> Operational
+Operational --> Faulty : MarkFaulty
+Operational --> UnderMaintenance : MarkUnderMaintenance
+Faulty --> UnderMaintenance : MarkUnderMaintenance
+Faulty --> Operational : MarkOperational
+UnderMaintenance --> Operational : MarkOperational
+UnderMaintenance --> Faulty : MarkFaulty
+Operational --> Retired : Retire
+Faulty --> Retired : Retire
+UnderMaintenance --> Retired : Retire
+Retired --> [*]
+@enduml
+

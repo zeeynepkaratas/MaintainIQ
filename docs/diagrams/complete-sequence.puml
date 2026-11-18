@@ -1,0 +1,38 @@
+@startuml
+title WorkOrderService.Complete
+actor User
+boundary UI
+control WorkOrderService
+control UnitOfWork
+entity WorkOrderRepository
+entity SparePartRepository
+entity AuditRepository
+database SQLServer
+
+User -> UI : Tamamla(laborHours, parts)
+UI -> WorkOrderService : Complete(command, currentUser)
+WorkOrderService -> WorkOrderService : Yetki ve domain kuralları
+WorkOrderService -> UnitOfWork : Begin()
+activate UnitOfWork
+group Tek transaction
+  WorkOrderService -> WorkOrderRepository : GetForUpdate(id)
+  WorkOrderRepository -> SQLServer : SELECT WorkOrder + RowVer
+  loop Her parça
+    WorkOrderService -> SparePartRepository : DecreaseWithLock(partId, qty)
+    SparePartRepository -> SQLServer : UPDATE/UPDLOCK + StockMovement
+  end
+  WorkOrderService -> WorkOrderRepository : SaveCompleted(costs, history)
+  WorkOrderRepository -> SQLServer : UPDATE WorkOrder + INSERT History
+  WorkOrderService -> AuditRepository : Add(oldValues, newValues)
+  AuditRepository -> SQLServer : INSERT AuditLog
+end
+alt Başarılı
+  WorkOrderService -> UnitOfWork : Commit()
+  WorkOrderService --> UI : Success
+else Herhangi bir hata
+  WorkOrderService -> UnitOfWork : Rollback()
+  WorkOrderService --> UI : Açıklanabilir hata
+end
+deactivate UnitOfWork
+@enduml
+
