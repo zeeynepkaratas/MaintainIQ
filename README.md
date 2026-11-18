@@ -12,7 +12,7 @@ dotnet test MaintainIQ.sln
 dotnet run --project src/MaintainIQ.UI
 ```
 
-İlk derleme için DevExpress WinForms 25.1.3 paketlerinin NuGet'ten veya yerel önbellekten erişilebilir olması gerekir. Boş grid ve tema düğmesi kurulum kontrolü içindir. Veritabanı bağlantısı bu aşamada gerekli değildir.
+Proje .NET 10 LTS ve DevExpress WinForms 25.2.3 kullanır. İlk ekrandaki boş grid ve tema düğmesi kurulum kontrolü içindir. Veritabanı bağlantısı bu aşamada gerekli değildir.
 
 ## Projeler
 
@@ -22,4 +22,4 @@ dotnet run --project src/MaintainIQ.UI
 - `MaintainIQ.UI`: DevExpress WinForms arayüzü.
 - `MaintainIQ.Tests`: xUnit testleri.
 
-[Kurulum notları](docs/kurulum-notlari.md)
+[Kurulum notları](docs/kurulum-notlari.md) · [Hocaya sorulacaklar](docs/hoca-sorulari.md)
