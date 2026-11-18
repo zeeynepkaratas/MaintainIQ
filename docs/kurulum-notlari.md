@@ -14,11 +14,18 @@ Hedef framework `Directory.Build.props` içinde, UI paket sürümü `src/Maintai
 
 - DevExpress lisansını yenile. Kurulu 25.2.3 deneme lisansının 5 Mart 2026'da dolduğu ve uygulamanın lisans penceresinde durduğu görsel olarak doğrulandı.
 - Lisans etkinleştirildikten sonra Visual Studio Toolbox erişimini, boş grid'i ve tema düğmesini görsel olarak doğrula.
-- SQL Server Express bağlantısını doğrula ve boş `MaintainIQ` veritabanını oluştur.
 - Dersin paket, lisans ve teslim koşullarını hocayla netleştir.
-- GitHub Projects panosunu ve faz takibini oluştur.
+- `v0.0-setup` etiketini, DevExpress ve hoca onayları tamamlandıktan sonra oluştur.
 
 DevExpress lisans sorunu derlemeyi engellemiyor. Çalışan masaüstü uygulamasını ve UI kontrollerini doğrulamayı engelliyor.
+
+## SQL Server
+
+`MSSQL$SQLEXPRESS` hizmeti otomatik başlangıçla çalışıyor. `MaintainIQ` veritabanı oluşturuldu ve `ONLINE` durumda doğrulandı. Geliştirme bağlantısı Windows kimlik doğrulaması kullanır. Yeniden kurulum için `db/00-create-database.sql` çalıştırılabilir.
+
+## GitHub takibi
+
+Public [MaintainIQ Roadmap](https://github.com/users/zeeynepkaratas/projects/2) panosu repoya bağlandı. Pano `Backlog`, `Bu hafta`, `Devam`, `Test` ve `Bitti` akış seçeneklerini içerir. Faz 0-11 için 12 milestone oluşturuldu.
 
 ## Kaynaklar
 

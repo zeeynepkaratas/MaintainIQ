@@ -2,6 +2,8 @@
 
 ## Analiz
 
+- [Faz 0 kontrol listesi](phase-0-checklist.md)
+- [Sıkıştırılmış proje takvimi](schedule.md)
 - [Kullanım senaryoları](use-cases.md)
 - [Gereksinimler ve izlenebilirlik](requirements.md)
 - [İş kuralları](business-rules.md)
