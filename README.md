@@ -22,4 +22,8 @@ Proje .NET 10 LTS ve DevExpress WinForms 25.2.3 kullanır. İlk ekrandaki boş g
 - `MaintainIQ.UI`: DevExpress WinForms arayüzü.
 - `MaintainIQ.Tests`: xUnit testleri.
 
-[Kurulum notları](docs/kurulum-notlari.md) · [Hocaya sorulacaklar](docs/hoca-sorulari.md)
+## Belgeler
+
+- [Kurulum notları](docs/kurulum-notlari.md)
+- [Hocaya sorulacaklar](docs/hoca-sorulari.md)
+- [Faz 1 analiz ve tasarım belgeleri](docs/README.md)

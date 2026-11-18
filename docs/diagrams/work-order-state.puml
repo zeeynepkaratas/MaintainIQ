@@ -1,0 +1,32 @@
+@startuml
+title İş Emri Durum Makinesi
+hide empty description
+
+[*] --> Created
+Created --> Assigned : Assign\naktif teknisyen
+Created --> Cancelled : Cancel\ngerekçe
+Assigned --> Created : Unassign
+Assigned --> Assigned : Reassign\naktif teknisyen
+Assigned --> InProgress : Start
+Assigned --> Cancelled : Cancel\ngerekçe
+InProgress --> WaitingForParts : RequestParts\nneden
+InProgress --> Completed : Complete\nişçilik > 0, stok yeterli
+InProgress --> Cancelled : Cancel\ngerekçe
+WaitingForParts --> InProgress : Resume
+WaitingForParts --> Cancelled : Cancel\ngerekçe
+Completed --> InProgress : Reopen\ngerekçe
+Completed --> Closed : Close\nSupervisor/Admin
+Closed --> [*]
+Cancelled --> [*]
+
+skinparam state {
+  BackgroundColor<<created>> #BDBDBD
+  BackgroundColor<<assigned>> #64B5F6
+  BackgroundColor<<progress>> #FFB74D
+  BackgroundColor<<waiting>> #FFF176
+  BackgroundColor<<completed>> #A5D6A7
+  BackgroundColor<<closed>> #388E3C
+  BackgroundColor<<cancelled>> #EF9A9A
+}
+@enduml
+

@@ -1,0 +1,22 @@
+@startuml
+title MaintainIQ Katmanları
+skinparam componentStyle rectangle
+
+component "MaintainIQ.UI\nWinForms + DevExpress" as UI
+component "MaintainIQ.Services\nKullanım senaryoları" as Services
+component "MaintainIQ.Data\nADO.NET + Dapper" as Data
+component "MaintainIQ.Domain\nSaf OOP ve iş kuralları" as Domain
+database "SQL Server" as Db
+
+UI --> Services
+Services --> Data
+Services --> Domain
+Data --> Domain
+Data --> Db
+
+note bottom of Domain
+  Başka projeye veya altyapı
+  paketine bağımlı değildir.
+end note
+@enduml
+

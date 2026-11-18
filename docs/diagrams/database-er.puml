@@ -1,0 +1,39 @@
+@startuml
+title MaintainIQ ER Diyagramı
+hide methods
+hide stereotypes
+
+entity Equipment
+entity FailureCause
+entity Failure
+entity WorkOrder
+entity WorkOrderPart
+entity WorkOrderStatusHistory
+entity WorkOrderComment
+entity SparePart
+entity StockMovement
+entity Supplier
+entity Person
+entity UserAccount
+entity MaintenancePlan
+entity Attachment
+entity AuditLog
+entity SchemaVersion
+
+Equipment ||--o{ Equipment : ParentId
+Equipment ||--o{ Failure : EquipmentId
+FailureCause ||--o{ Failure : CauseId
+Equipment ||--o{ WorkOrder : EquipmentId
+Failure |o--o| WorkOrder : FailureId
+MaintenancePlan |o--o{ WorkOrder : MaintenancePlanId
+Person |o--o{ WorkOrder : AssignedTechnicianId
+WorkOrder ||--o{ WorkOrderPart : WorkOrderId
+SparePart ||--o{ WorkOrderPart : SparePartId
+WorkOrder ||--o{ WorkOrderStatusHistory : WorkOrderId
+WorkOrder ||--o{ WorkOrderComment : WorkOrderId
+Supplier |o--o{ SparePart : SupplierId
+SparePart ||--o{ StockMovement : SparePartId
+WorkOrder |o--o{ StockMovement : WorkOrderId
+Person ||--o| UserAccount : PersonId
+Equipment ||--o{ MaintenancePlan : EquipmentId
+@enduml
