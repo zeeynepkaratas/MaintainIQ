@@ -2,8 +2,8 @@
 
 ## Doğrulanan ortam
 
-- .NET SDK 10.0.404
-- Hedef framework `net10.0`
+- .NET SDK 9.0.305
+- Hedef framework `net9.0`
 - Visual Studio 2022 Community
 - DevExpress WinForms 25.2.3
 - Git deposu `main` dalında ve `origin` olarak GitHub'a bağlı

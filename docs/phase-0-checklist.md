@@ -3,7 +3,7 @@
 ## Tamamlananlar
 
 - [x] Visual Studio 2022 ve .NET masaüstü geliştirme ortamı kurulu.
-- [x] .NET 10.0.404 SDK kurulu ve `global.json` ile sabitlendi.
+- [x] Visual Studio 2022 17.14 ile uyumlu .NET 9.0.305 SDK kurulu ve `global.json` ile sabitlendi.
 - [x] SQL Server Express çalışıyor.
 - [x] Boş `MaintainIQ` veritabanı oluşturuldu ve `ONLINE` durumda doğrulandı.
 - [x] DevExpress WinForms 25.2.3 kurulu ve proje paketi çözülüyor.
