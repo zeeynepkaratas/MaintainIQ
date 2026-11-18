@@ -4,6 +4,7 @@
 
 - [Faz 0 kontrol listesi](phase-0-checklist.md)
 - [Faz 2 domain modeli kontrol listesi](phase-2-checklist.md)
+- [Faz 3 durum makineleri kontrol listesi](phase-3-checklist.md)
 - [Sıkıştırılmış proje takvimi](schedule.md)
 - [Kullanım senaryoları](use-cases.md)
 - [Gereksinimler ve izlenebilirlik](requirements.md)

@@ -54,13 +54,26 @@ public sealed class Equipment : BaseEntity
         }
     }
 
-    public void MarkFaulty() => Status = EquipmentStatus.Faulty;
+    public void MarkFaulty() => ChangeStatus(
+        EquipmentStatus.Faulty,
+        EquipmentStatus.Operational,
+        EquipmentStatus.UnderMaintenance);
 
-    public void MarkUnderMaintenance() => Status = EquipmentStatus.UnderMaintenance;
+    public void MarkUnderMaintenance() => ChangeStatus(
+        EquipmentStatus.UnderMaintenance,
+        EquipmentStatus.Operational,
+        EquipmentStatus.Faulty);
 
-    public void MarkOperational() => Status = EquipmentStatus.Operational;
+    public void MarkOperational() => ChangeStatus(
+        EquipmentStatus.Operational,
+        EquipmentStatus.Faulty,
+        EquipmentStatus.UnderMaintenance);
 
-    public void Retire() => Status = EquipmentStatus.Retired;
+    public void Retire() => ChangeStatus(
+        EquipmentStatus.Retired,
+        EquipmentStatus.Operational,
+        EquipmentStatus.Faulty,
+        EquipmentStatus.UnderMaintenance);
 
     public void SoftDelete(bool hasOpenWorkOrders)
     {
@@ -83,5 +96,17 @@ public sealed class Equipment : BaseEntity
         }
 
         return false;
+    }
+
+    private void ChangeStatus(EquipmentStatus target, params EquipmentStatus[] allowedSources)
+    {
+        if (!allowedSources.Contains(Status))
+        {
+            throw new BusinessRuleException(
+                "EQ-STATE",
+                $"Ekipman durumu {Status} değerinden {target} değerine geçirilemez.");
+        }
+
+        Status = target;
     }
 }
