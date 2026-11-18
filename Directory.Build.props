@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <MaintainIQTargetFramework>net8.0</MaintainIQTargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+</Project>

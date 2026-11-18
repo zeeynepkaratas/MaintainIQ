@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\MaintainIQ.Data\MaintainIQ.Data.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>$(MaintainIQTargetFramework)</TargetFramework>
+  </PropertyGroup>
+
+</Project>
