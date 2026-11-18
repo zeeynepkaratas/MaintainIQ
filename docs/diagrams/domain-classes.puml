@@ -10,6 +10,7 @@ abstract class Person
 class Technician
 class Supervisor
 class AdminPerson
+class OperatorPerson
 class UserAccount
 class Equipment
 class Failure
@@ -24,6 +25,7 @@ class CorrectiveWorkOrder
 class PreventiveWorkOrder
 class WorkOrderPart
 class WorkOrderStatusHistoryEntry
+class WorkOrderComment
 class SparePart
 class StockMovement
 class Supplier
@@ -37,6 +39,7 @@ BaseEntity <|-- Person
 Person <|-- Technician
 Person <|-- Supervisor
 Person <|-- AdminPerson
+Person <|-- OperatorPerson
 BaseEntity <|-- Equipment
 BaseEntity <|-- Failure
 BaseEntity <|-- WorkOrder
@@ -51,6 +54,7 @@ MaintenancePlan "0..1" -- "*" PreventiveWorkOrder
 WorkOrder "1" o-- "*" WorkOrderPart
 SparePart "1" -- "*" WorkOrderPart
 WorkOrder "1" o-- "*" WorkOrderStatusHistoryEntry
+WorkOrder "1" o-- "*" WorkOrderComment
 Supplier "1" -- "*" SparePart
 SparePart "1" -- "*" StockMovement
 Person "1" -- "0..1" UserAccount
