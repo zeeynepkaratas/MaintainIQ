@@ -19,10 +19,10 @@
 
 ## Bekleyenler
 
-- [ ] [#2 Hoca sorularının cevaplarını tamamla](https://github.com/zeeynepkaratas/MaintainIQ/issues/2) ve `docs/hoca-sorulari.md` dosyasına yaz.
+- [x] [#2 Proje kararlarını ve hoca cevaplarını tamamla](https://github.com/zeeynepkaratas/MaintainIQ/issues/2) ve `docs/hoca-sorulari.md` dosyasına yaz.
 - [ ] [#1 Geçerli DevExpress kullanım yöntemini belirle](https://github.com/zeeynepkaratas/MaintainIQ/issues/1).
 - [ ] [#3 GridControl ve tema görünümünü doğrula](https://github.com/zeeynepkaratas/MaintainIQ/issues/3).
 - [ ] Bekleyen maddeler tamamlanınca `v0.0-setup` etiketi oluştur.
 
-Faz 0, bekleyen dört madde tamamlanmadan resmî olarak kapatılmaz.
+Faz 0'ın karar ve altyapı kapsamı tamamlanmıştır. DevExpress erişimi ile görsel doğrulama, açıkça Faz 7 sonundaki geçiş kapısına ertelenmiştir. `v0.0-setup` etiketi bu iki madde tamamlandıktan sonra oluşturulur.
 

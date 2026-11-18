@@ -17,4 +17,4 @@ Teslim hedefi 27 Aralık 2026'dır. Bu tarihler 18 Kasım 2026 başlangıcına g
 | 10 | Dashboard, takvim ve raporlar | 23 Aralık |
 | 11 | Kalite, dokümantasyon ve yayın | 27 Aralık |
 
-Bu plan, lisans çözümünü Faz 8 başlamadan önce gerektirir. DevExpress kararı 11 Aralık'a kadar kesinleşmelidir.
+Bu plan, lisans çözümünü Faz 8 başlamadan önce gerektirir. Faz 7 tamamlandığında DevExpress kararı, uygulama açılışı, GridControl ve tema görünümü doğrulanmadan Faz 8'e geçilmez. Son karar tarihi 11 Aralık'tır.
