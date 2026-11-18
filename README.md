@@ -12,7 +12,16 @@ dotnet test MaintainIQ.sln
 dotnet run --project src/MaintainIQ.UI
 ```
 
-Proje .NET 9 ve DevExpress WinForms 25.2.3 kullanır. Bu hedef, kurulu Visual Studio 2022 17.14 ile uyumludur. İlk ekrandaki boş grid ve tema düğmesi kurulum kontrolü içindir. Veritabanı bağlantısı bu aşamada gerekli değildir.
+Proje .NET 9 ve DevExpress WinForms 25.2.3 kullanır. Bu hedef, kurulu Visual Studio 2022 17.14 ile uyumludur. İlk ekrandaki boş grid ve tema düğmesi kurulum kontrolü içindir.
+
+Yerel SQL Server Express veritabanını oluşturmak ve güncellemek için:
+
+```powershell
+pwsh -File .\db\deploy.ps1
+sqlcmd -S .\SQLEXPRESS -E -b -d MaintainIQ -i .\db\verify.sql
+```
+
+Ayrıntılar için [veritabanı kurulum rehberine](db/README.md) bakılabilir.
 
 ## Projeler
 
