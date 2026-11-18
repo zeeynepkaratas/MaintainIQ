@@ -1,0 +1,58 @@
+name: Domain CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore domain test graph
+        run: dotnet restore tests/MaintainIQ.Tests/MaintainIQ.Tests.csproj
+
+      - name: Build domain test graph
+        run: dotnet build tests/MaintainIQ.Tests/MaintainIQ.Tests.csproj --no-restore --configuration Release --warnaserror
+
+      - name: Test with domain coverage
+        run: >-
+          dotnet test tests/MaintainIQ.Tests/MaintainIQ.Tests.csproj
+          --no-build
+          --no-restore
+          --configuration Release
+          --settings coverlet.runsettings
+          --collect:"XPlat Code Coverage"
+          --results-directory TestResults
+
+      - name: Enforce 85 percent domain line coverage
+        shell: pwsh
+        run: |
+          $report = Get-ChildItem TestResults -Filter coverage.cobertura.xml -Recurse | Select-Object -First 1
+          if (-not $report) { throw "Coverage report was not produced." }
+          [xml]$coverage = Get-Content $report.FullName -Raw
+          $lineRate = [double]$coverage.coverage.'line-rate'
+          Write-Host ("Domain line coverage: {0:P2}" -f $lineRate)
+          if ($lineRate -lt 0.85) { throw "Domain line coverage is below 85%." }
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: domain-coverage
+          path: TestResults/**/coverage.cobertura.xml
+          if-no-files-found: warn

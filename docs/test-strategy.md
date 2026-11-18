@@ -18,5 +18,5 @@
 
 ## CI kapısı
 
-Pull request için restore, build ve test çalışır. Domain uyarıları hata kabul edilir. Kapsam raporu Faz 3'te CI'a eklenecektir.
+Pull request için Domain/Data/Services test grafiğinde restore, uyarıları hata kabul eden build ve test çalışır. Cobertura kapsam raporu artifact olarak saklanır. Domain satır kapsamı %85'in altına düşerse CI başarısız olur. Ticari DevExpress paket kaynağı sağlandığında UI projesi de CI restore ve build kapsamına alınacaktır.
 
