@@ -1,0 +1,87 @@
+using MaintainIQ.Domain.Common;
+using MaintainIQ.Domain.Enums;
+
+namespace MaintainIQ.Domain.Entities;
+
+public sealed class Equipment : BaseEntity
+{
+    private readonly List<Equipment> _children = [];
+
+    public Equipment(
+        string code,
+        string name,
+        string location,
+        DateTimeOffset createdAt,
+        string? qrToken = null)
+        : base(createdAt)
+    {
+        Code = Guard.Required(code, "Ekipman kodu", 50).ToUpperInvariant();
+        Name = Guard.Required(name, "Ekipman adı", 160);
+        Location = Guard.Required(location, "Konum", 200);
+        QrToken = Guard.Optional(qrToken, "QR token", 100);
+    }
+
+    public string Code { get; private set; }
+
+    public string Name { get; private set; }
+
+    public string Location { get; private set; }
+
+    public string? QrToken { get; private set; }
+
+    public EquipmentStatus Status { get; private set; } = EquipmentStatus.Operational;
+
+    public Equipment? Parent { get; private set; }
+
+    public int? ParentId => Parent?.Id;
+
+    public IReadOnlyCollection<Equipment> Children => _children.AsReadOnly();
+
+    public bool IsDeleted { get; private set; }
+
+    public void MoveUnder(Equipment? newParent)
+    {
+        if (ReferenceEquals(this, newParent) || (newParent is not null && IsAncestorOf(newParent)))
+        {
+            throw new BusinessRuleException("BR-07", "Ekipman kendisine veya bir alt ekipmanına taşınamaz.");
+        }
+
+        Parent?._children.Remove(this);
+        Parent = newParent;
+        if (newParent is not null && !newParent._children.Contains(this))
+        {
+            newParent._children.Add(this);
+        }
+    }
+
+    public void MarkFaulty() => Status = EquipmentStatus.Faulty;
+
+    public void MarkUnderMaintenance() => Status = EquipmentStatus.UnderMaintenance;
+
+    public void MarkOperational() => Status = EquipmentStatus.Operational;
+
+    public void Retire() => Status = EquipmentStatus.Retired;
+
+    public void SoftDelete(bool hasOpenWorkOrders)
+    {
+        if (_children.Any(child => !child.IsDeleted) || hasOpenWorkOrders)
+        {
+            throw new BusinessRuleException("BR-08", "Çocuğu veya açık iş emri olan ekipman silinemez.");
+        }
+
+        IsDeleted = true;
+    }
+
+    private bool IsAncestorOf(Equipment candidate)
+    {
+        for (var current = candidate.Parent; current is not null; current = current.Parent)
+        {
+            if (ReferenceEquals(current, this))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
