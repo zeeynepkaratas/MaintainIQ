@@ -25,4 +25,21 @@ public abstract class BaseEntity
 
         UpdatedAt = updatedAt;
     }
+
+    internal void RestorePersistenceState(
+        int id,
+        DateTimeOffset createdAt,
+        DateTimeOffset updatedAt,
+        byte[] rowVersion)
+    {
+        if (id <= 0 || updatedAt < createdAt || rowVersion.Length == 0)
+        {
+            throw new DomainValidationException("Kalıcı varlık bilgileri geçersizdir.");
+        }
+
+        Id = id;
+        CreatedAt = createdAt;
+        UpdatedAt = updatedAt;
+        RowVersion = rowVersion.ToArray();
+    }
 }

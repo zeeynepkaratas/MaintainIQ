@@ -34,6 +34,17 @@ public sealed class Attachment : BaseEntity
     public string OriginalFileName { get; private set; }
     public string ContentType { get; private set; }
     public long SizeBytes { get; private set; }
+
+    internal static Attachment Rehydrate(
+        int id, AttachmentOwnerType ownerType, int ownerId, string storedFileName,
+        string originalFileName, string contentType, long sizeBytes,
+        DateTimeOffset createdAt, DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        var attachment = new Attachment(
+            ownerType, ownerId, storedFileName, originalFileName, contentType, sizeBytes, createdAt);
+        attachment.RestorePersistenceState(id, createdAt, updatedAt, rowVersion);
+        return attachment;
+    }
 }
 
 public sealed class AuditLog : BaseEntity
@@ -69,4 +80,20 @@ public sealed class AuditLog : BaseEntity
     public DateTimeOffset PerformedAt { get; private set; }
     public string? OldValuesJson { get; private set; }
     public string? NewValuesJson { get; private set; }
+
+    internal static AuditLog Rehydrate(
+        long id, string entityName, string entityId, string action, int performedByPersonId,
+        DateTimeOffset performedAt, string? oldValuesJson, string? newValuesJson,
+        DateTimeOffset createdAt, DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        if (id > int.MaxValue)
+        {
+            throw new DomainValidationException("Denetim kaydı kimliği desteklenen aralığın dışındadır.");
+        }
+
+        var audit = new AuditLog(
+            entityName, entityId, action, performedByPersonId, performedAt, oldValuesJson, newValuesJson);
+        audit.RestorePersistenceState((int)id, createdAt, updatedAt, rowVersion);
+        return audit;
+    }
 }

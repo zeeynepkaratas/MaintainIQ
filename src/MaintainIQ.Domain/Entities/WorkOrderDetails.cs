@@ -23,6 +23,15 @@ public sealed class WorkOrderPart : BaseEntity
     public decimal Quantity { get; private set; }
     public Money UnitCostSnapshot { get; private set; }
     public Money TotalCost => UnitCostSnapshot.Multiply(Quantity);
+
+    internal static WorkOrderPart Rehydrate(
+        int id, int sparePartId, decimal quantity, decimal unitCost, string currency,
+        DateTimeOffset createdAt, DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        var part = new WorkOrderPart(sparePartId, quantity, new Money(unitCost, currency), createdAt);
+        part.RestorePersistenceState(id, createdAt, updatedAt, rowVersion);
+        return part;
+    }
 }
 
 public sealed class WorkOrderStatusHistoryEntry : BaseEntity

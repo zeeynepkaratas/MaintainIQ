@@ -23,6 +23,14 @@ sqlcmd -S .\SQLEXPRESS -E -b -d MaintainIQ -i .\db\verify.sql
 
 Ayrıntılar için [veritabanı kurulum rehberine](db/README.md) bakılabilir.
 
+Veri katmanı ADO.NET bağlantı/transaction yönetimi ile Dapper satır eşlemesini birlikte kullanır. SQL,
+`UPDLOCK`, rowversion ve Unit of Work sınırları açıkça yönetilir; Dapper domain nesnelerine doğrudan
+yazmaz. UI olmadan repository doğrulaması için:
+
+```powershell
+dotnet run --project tools/ConsoleSmoke/ConsoleSmoke.csproj
+```
+
 ## Projeler
 
 - `MaintainIQ.Domain`: İş kuralları ve model.
@@ -30,6 +38,7 @@ Ayrıntılar için [veritabanı kurulum rehberine](db/README.md) bakılabilir.
 - `MaintainIQ.Services`: Uygulama iş akışları.
 - `MaintainIQ.UI`: DevExpress WinForms arayüzü.
 - `MaintainIQ.Tests`: xUnit testleri.
+- `ConsoleSmoke`: Repository'lerin SQL Server'a karşı uçtan uca kontrolü.
 
 ## Belgeler
 

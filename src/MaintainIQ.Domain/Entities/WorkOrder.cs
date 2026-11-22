@@ -48,6 +48,20 @@ public abstract class WorkOrder : BaseEntity
 
     public bool IsTerminal => Status is WorkOrderStatus.Closed or WorkOrderStatus.Cancelled;
 
+    internal void RestoreWorkOrderState(
+        int id, WorkOrderStatus status, int? assignedTechnicianId,
+        DateTimeOffset? actualStartAt, DateTimeOffset? completedAt, DateTimeOffset? closedAt,
+        int laborMinutes, DateTimeOffset createdAt, DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        Status = status;
+        AssignedTechnicianId = assignedTechnicianId;
+        ActualStartAt = actualStartAt;
+        CompletedAt = completedAt;
+        ClosedAt = closedAt;
+        LaborMinutes = laborMinutes;
+        RestorePersistenceState(id, createdAt, updatedAt, rowVersion);
+    }
+
     public void Assign(
         int technicianId,
         bool technicianIsActive,
@@ -175,6 +189,12 @@ public abstract class WorkOrder : BaseEntity
         _parts.Add(part);
     }
 
+    internal void AddRehydratedPart(WorkOrderPart part)
+    {
+        ArgumentNullException.ThrowIfNull(part);
+        _parts.Add(part);
+    }
+
     public void AddComment(WorkOrderComment comment)
     {
         ArgumentNullException.ThrowIfNull(comment);
@@ -276,6 +296,20 @@ public sealed class CorrectiveWorkOrder : WorkOrder
     }
 
     public int FailureId { get; private set; }
+
+    internal static CorrectiveWorkOrder Rehydrate(
+        int id, string number, int equipmentId, int failureId, Priority priority, string description,
+        DateRange? plannedWindow, WorkOrderStatus status, int? assignedTechnicianId,
+        DateTimeOffset? actualStartAt, DateTimeOffset? completedAt, DateTimeOffset? closedAt,
+        int laborMinutes, DateTimeOffset createdAt, DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        var order = new CorrectiveWorkOrder(
+            number, equipmentId, failureId, priority, description, createdAt, plannedWindow);
+        order.RestoreWorkOrderState(
+            id, status, assignedTechnicianId, actualStartAt, completedAt, closedAt,
+            laborMinutes, createdAt, updatedAt, rowVersion);
+        return order;
+    }
 }
 
 public sealed class PreventiveWorkOrder : WorkOrder
@@ -302,4 +336,19 @@ public sealed class PreventiveWorkOrder : WorkOrder
 
     public int MaintenancePlanId { get; private set; }
     public DateOnly DueDate { get; private set; }
+
+    internal static PreventiveWorkOrder Rehydrate(
+        int id, string number, int equipmentId, int maintenancePlanId, DateOnly dueDate,
+        Priority priority, string description, DateRange? plannedWindow, WorkOrderStatus status,
+        int? assignedTechnicianId, DateTimeOffset? actualStartAt, DateTimeOffset? completedAt,
+        DateTimeOffset? closedAt, int laborMinutes, DateTimeOffset createdAt,
+        DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        var order = new PreventiveWorkOrder(
+            number, equipmentId, maintenancePlanId, dueDate, priority, description, createdAt, plannedWindow);
+        order.RestoreWorkOrderState(
+            id, status, assignedTechnicianId, actualStartAt, completedAt, closedAt,
+            laborMinutes, createdAt, updatedAt, rowVersion);
+        return order;
+    }
 }

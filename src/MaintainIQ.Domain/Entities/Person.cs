@@ -26,6 +26,13 @@ public abstract class Person : BaseEntity
 
     public bool IsActive { get; private set; } = true;
 
+    internal void RestorePersonState(
+        int id, bool isActive, DateTimeOffset createdAt, DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        IsActive = isActive;
+        RestorePersistenceState(id, createdAt, updatedAt, rowVersion);
+    }
+
     public void Activate() => IsActive = true;
 
     public void Deactivate() => IsActive = false;
@@ -45,6 +52,15 @@ public sealed class Technician : Person
     }
 
     public string? Specialty { get; private set; }
+
+    internal static Technician Rehydrate(
+        int id, string employeeNumber, string firstName, string lastName, string? specialty,
+        bool isActive, DateTimeOffset createdAt, DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        var technician = new Technician(employeeNumber, firstName, lastName, createdAt, specialty);
+        technician.RestorePersonState(id, isActive, createdAt, updatedAt, rowVersion);
+        return technician;
+    }
 }
 
 public sealed class Supervisor : Person
