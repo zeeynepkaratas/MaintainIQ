@@ -31,6 +31,23 @@ yazmaz. UI olmadan repository doğrulaması için:
 dotnet run --project tools/ConsoleSmoke/ConsoleSmoke.csproj
 ```
 
+## Transaction tasarımı
+
+Servis katmanı her yazma kullanım senaryosunda yeni bir veri oturumu ve `UnitOfWork` açar. Repository'ler
+transaction başlatmaz; aynı bağlantı ve transaction'ı kullanır. `WorkOrderService.CompleteAsync` parçaları
+kimlik sırasıyla `UPDLOCK` kullanarak kilitler, stoku düşer, stok hareketlerini yazar, iş emrini tamamlar,
+durum geçmişini ve ekipman durumunu günceller, audit kaydını ekler ve en son commit eder. Adımların herhangi
+birinde hata oluşursa bütün değişiklikler geri alınır.
+
+Yetki kontrolleri merkezi `IPermissionService` rol matrisiyle servis katmanında uygulanır. Parolalar
+PBKDF2-SHA256, 120.000 yineleme ve 16 bayt rastgele tuzla saklanır; doğrulama sabit zamanlı karşılaştırma
+kullanır. Ayrıntılı akış için [transaction tasarımına](docs/transaction-design.md) bakılabilir.
+
+```powershell
+dotnet test tests/MaintainIQ.Tests/MaintainIQ.Tests.csproj --filter "Category!=SqlServerIntegration"
+dotnet test tests/MaintainIQ.Tests/MaintainIQ.Tests.csproj --filter "Category=SqlServerIntegration"
+```
+
 ## Projeler
 
 - `MaintainIQ.Domain`: İş kuralları ve model.
@@ -45,3 +62,4 @@ dotnet run --project tools/ConsoleSmoke/ConsoleSmoke.csproj
 - [Kurulum notları](docs/kurulum-notlari.md)
 - [Hocaya sorulacaklar](docs/hoca-sorulari.md)
 - [Faz 1 analiz ve tasarım belgeleri](docs/README.md)
+- [Faz 6 transaction tasarımı](docs/transaction-design.md)

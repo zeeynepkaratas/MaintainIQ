@@ -75,6 +75,13 @@ public sealed class UserAccount : BaseEntity
         LockedUntil = null;
     }
 
+    public void ChangePassword(string passwordHash, string passwordSalt, DateTimeOffset changedAt)
+    {
+        PasswordHash = Guard.Required(passwordHash, "Parola özeti", 512);
+        PasswordSalt = Guard.Required(passwordSalt, "Parola tuzu", 256);
+        MarkUpdated(changedAt);
+    }
+
     public void ChangeRole(UserRole role) => Role = role;
 
     public void Activate() => IsActive = true;

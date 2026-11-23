@@ -7,6 +7,8 @@
 - [Faz 3 durum makineleri kontrol listesi](phase-3-checklist.md)
 - [Faz 4 veritabanı kontrol listesi](phase-4-checklist.md)
 - [Faz 5 veri katmanı kontrol listesi](phase-5-checklist.md)
+- [Faz 6 servis çekirdeği kontrol listesi](phase-6-checklist.md)
+- [Transaction tasarımı](transaction-design.md)
 - [Veritabanı kurulum rehberi](../db/README.md)
 - [Sıkıştırılmış proje takvimi](schedule.md)
 - [Kullanım senaryoları](use-cases.md)
