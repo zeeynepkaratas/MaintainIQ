@@ -42,6 +42,21 @@ public sealed class UserAccount : BaseEntity
 
     public DateTimeOffset? LockedUntil { get; private set; }
 
+    internal static UserAccount Rehydrate(
+        int id, int personId, string username, UserRole role, string passwordHash,
+        string passwordSalt, bool isActive, int failedLoginCount, DateTimeOffset? lockedUntil,
+        DateTimeOffset createdAt, DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        var account = new UserAccount(personId, username, role, passwordHash, passwordSalt, createdAt)
+        {
+            IsActive = isActive,
+            FailedLoginCount = failedLoginCount,
+            LockedUntil = lockedUntil,
+        };
+        account.RestorePersistenceState(id, createdAt, updatedAt, rowVersion);
+        return account;
+    }
+
     public bool IsLocked(DateTimeOffset now) => LockedUntil > now;
 
     public void RecordFailedLogin(DateTimeOffset now)

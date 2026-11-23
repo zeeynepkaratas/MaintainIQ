@@ -6,6 +6,7 @@
 - [Faz 2 domain modeli kontrol listesi](phase-2-checklist.md)
 - [Faz 3 durum makineleri kontrol listesi](phase-3-checklist.md)
 - [Faz 4 veritabanı kontrol listesi](phase-4-checklist.md)
+- [Faz 5 veri katmanı kontrol listesi](phase-5-checklist.md)
 - [Veritabanı kurulum rehberi](../db/README.md)
 - [Sıkıştırılmış proje takvimi](schedule.md)
 - [Kullanım senaryoları](use-cases.md)

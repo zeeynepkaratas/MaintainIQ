@@ -48,6 +48,17 @@ public sealed class SparePart : BaseEntity
     public int? SupplierId { get; private set; }
     public bool IsBelowMinimum => StockQuantity < MinimumStock;
 
+    internal static SparePart Rehydrate(
+        int id, int? supplierId, string code, string name, decimal stockQuantity,
+        decimal minimumStock, decimal unitCost, string currency,
+        DateTimeOffset createdAt, DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        var part = new SparePart(
+            code, name, stockQuantity, minimumStock, new Money(unitCost, currency), createdAt, supplierId);
+        part.RestorePersistenceState(id, createdAt, updatedAt, rowVersion);
+        return part;
+    }
+
     public void Receive(decimal quantity, Money unitCost)
     {
         quantity = Guard.Positive(quantity, "Stok giriş miktarı");
@@ -113,4 +124,16 @@ public sealed class StockMovement : BaseEntity
     public Money UnitCost { get; private set; }
     public string Reason { get; private set; }
     public int? WorkOrderId { get; private set; }
+
+    internal static StockMovement Rehydrate(
+        int id, int sparePartId, int? workOrderId, StockMovementType type,
+        decimal quantity, decimal resultingQuantity, decimal unitCost, string currency,
+        string reason, DateTimeOffset createdAt, DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        var movement = new StockMovement(
+            sparePartId, type, quantity, resultingQuantity, new Money(unitCost, currency),
+            createdAt, reason, workOrderId);
+        movement.RestorePersistenceState(id, createdAt, updatedAt, rowVersion);
+        return movement;
+    }
 }

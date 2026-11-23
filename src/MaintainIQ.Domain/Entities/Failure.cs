@@ -61,6 +61,20 @@ public sealed class Failure : BaseEntity
 
     public DateTimeOffset? ResolvedAt { get; private set; }
 
+    internal static Failure Rehydrate(
+        int id, int equipmentId, int causeId, FailureSeverity severity, FailureStatus status,
+        string description, int reportedByPersonId, DateTimeOffset reportedAt,
+        DateTimeOffset? resolvedAt, DateTimeOffset createdAt, DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        var failure = new Failure(equipmentId, causeId, severity, description, reportedByPersonId, reportedAt)
+        {
+            Status = status,
+            ResolvedAt = resolvedAt,
+        };
+        failure.RestorePersistenceState(id, createdAt, updatedAt, rowVersion);
+        return failure;
+    }
+
     public void Resolve(DateTimeOffset resolvedAt)
     {
         if (resolvedAt < ReportedAt)

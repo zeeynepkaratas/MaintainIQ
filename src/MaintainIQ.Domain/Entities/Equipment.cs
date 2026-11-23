@@ -6,6 +6,7 @@ namespace MaintainIQ.Domain.Entities;
 public sealed class Equipment : BaseEntity
 {
     private readonly List<Equipment> _children = [];
+    private int? _parentId;
 
     public Equipment(
         string code,
@@ -33,11 +34,34 @@ public sealed class Equipment : BaseEntity
 
     public Equipment? Parent { get; private set; }
 
-    public int? ParentId => Parent?.Id;
+    public int? ParentId => Parent?.Id ?? _parentId;
 
     public IReadOnlyCollection<Equipment> Children => _children.AsReadOnly();
 
     public bool IsDeleted { get; private set; }
+
+    internal static Equipment Rehydrate(
+        int id,
+        int? parentId,
+        string code,
+        string name,
+        string location,
+        string? qrToken,
+        EquipmentStatus status,
+        bool isDeleted,
+        DateTimeOffset createdAt,
+        DateTimeOffset updatedAt,
+        byte[] rowVersion)
+    {
+        var equipment = new Equipment(code, name, location, createdAt, qrToken)
+        {
+            _parentId = parentId,
+            Status = status,
+            IsDeleted = isDeleted,
+        };
+        equipment.RestorePersistenceState(id, createdAt, updatedAt, rowVersion);
+        return equipment;
+    }
 
     public void MoveUnder(Equipment? newParent)
     {
@@ -48,6 +72,7 @@ public sealed class Equipment : BaseEntity
 
         Parent?._children.Remove(this);
         Parent = newParent;
+        _parentId = newParent?.Id;
         if (newParent is not null && !newParent._children.Contains(this))
         {
             newParent._children.Add(this);

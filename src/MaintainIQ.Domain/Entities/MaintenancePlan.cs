@@ -44,6 +44,21 @@ public sealed class MaintenancePlan : BaseEntity
     public DateOnly NextDueDate { get; private set; }
     public bool IsActive { get; private set; } = true;
 
+    internal static MaintenancePlan Rehydrate(
+        int id, int equipmentId, string name, int periodValue, MaintenancePeriodUnit periodUnit,
+        Priority priority, int estimatedDurationMinutes, DateOnly nextDueDate, bool isActive,
+        DateTimeOffset createdAt, DateTimeOffset updatedAt, byte[] rowVersion)
+    {
+        var plan = new MaintenancePlan(
+            equipmentId, name, periodValue, periodUnit, priority,
+            estimatedDurationMinutes, nextDueDate, createdAt)
+        {
+            IsActive = isActive,
+        };
+        plan.RestorePersistenceState(id, createdAt, updatedAt, rowVersion);
+        return plan;
+    }
+
     public DateOnly CalculateNextDue(DateOnly from) => PeriodUnit switch
     {
         MaintenancePeriodUnit.Day => from.AddDays(PeriodValue),
