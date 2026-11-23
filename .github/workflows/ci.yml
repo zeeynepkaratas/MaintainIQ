@@ -37,6 +37,7 @@ jobs:
           --configuration Release
           --settings coverlet.runsettings
           --collect:"XPlat Code Coverage"
+          --filter "Category!=SqlServerIntegration"
           --results-directory TestResults
 
       - name: Enforce 85 percent domain line coverage

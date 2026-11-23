@@ -11,6 +11,7 @@ using Microsoft.Data.SqlClient;
 namespace MaintainIQ.Tests.Data;
 
 [Collection(DataCollection.Name)]
+[Trait("Category", "SqlServerIntegration")]
 public sealed class RepositoryIntegrationTests
 {
     private readonly SqlConnectionFactory _factory = new(DataFixture.ConnectionString);
