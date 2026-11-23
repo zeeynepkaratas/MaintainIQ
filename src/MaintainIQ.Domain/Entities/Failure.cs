@@ -85,4 +85,20 @@ public sealed class Failure : BaseEntity
         Status = FailureStatus.Resolved;
         ResolvedAt = resolvedAt;
     }
+
+    public void Acknowledge(DateTimeOffset acknowledgedAt)
+    {
+        if (Status != FailureStatus.Open)
+        {
+            throw new BusinessRuleException("FAILURE-STATE", "Yalnızca açık arıza kabul edilebilir.");
+        }
+
+        if (acknowledgedAt < ReportedAt)
+        {
+            throw new DomainValidationException("Kabul zamanı bildirim zamanından önce olamaz.");
+        }
+
+        Status = FailureStatus.InReview;
+        MarkUpdated(acknowledgedAt);
+    }
 }

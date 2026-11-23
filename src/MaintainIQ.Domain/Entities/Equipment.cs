@@ -110,6 +110,19 @@ public sealed class Equipment : BaseEntity
         IsDeleted = true;
     }
 
+    public void UpdateDetails(string name, string location, DateTimeOffset changedAt)
+    {
+        Name = Guard.Required(name, "Ekipman adı", 160);
+        Location = Guard.Required(location, "Konum", 200);
+        MarkUpdated(changedAt);
+    }
+
+    public void SetQrToken(string qrToken, DateTimeOffset changedAt)
+    {
+        QrToken = Guard.Required(qrToken, "QR token", 100);
+        MarkUpdated(changedAt);
+    }
+
     private bool IsAncestorOf(Equipment candidate)
     {
         for (var current = candidate.Parent; current is not null; current = current.Parent)

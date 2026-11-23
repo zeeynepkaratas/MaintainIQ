@@ -6,6 +6,8 @@ control WorkOrderService
 control UnitOfWork
 entity WorkOrderRepository
 entity SparePartRepository
+entity StockMovementRepository
+entity EquipmentRepository
 entity AuditRepository
 database SQLServer
 
@@ -15,14 +17,18 @@ WorkOrderService -> WorkOrderService : Yetki ve domain kuralları
 WorkOrderService -> UnitOfWork : Begin()
 activate UnitOfWork
 group Tek transaction
-  WorkOrderService -> WorkOrderRepository : GetForUpdate(id)
-  WorkOrderRepository -> SQLServer : SELECT WorkOrder + RowVer
-  loop Her parça
-    WorkOrderService -> SparePartRepository : DecreaseWithLock(partId, qty)
-    SparePartRepository -> SQLServer : UPDATE/UPDLOCK + StockMovement
+  WorkOrderService -> WorkOrderRepository : GetWithParts(id)
+  WorkOrderRepository -> SQLServer : SELECT WorkOrder + RowVer + Parts
+  loop Her parça (Id sırası)
+    WorkOrderService -> SparePartRepository : GetForUpdate(partId)
+    SparePartRepository -> SQLServer : SELECT WITH (UPDLOCK, ROWLOCK)
+    WorkOrderService -> SparePartRepository : Update(decreasedStock, RowVer)
+    WorkOrderService -> StockMovementRepository : Add(consumption)
   end
-  WorkOrderService -> WorkOrderRepository : SaveCompleted(costs, history)
+  WorkOrderService -> WorkOrderRepository : Update(completed, RowVer)
+  WorkOrderService -> WorkOrderRepository : AddStatusHistory()
   WorkOrderRepository -> SQLServer : UPDATE WorkOrder + INSERT History
+  WorkOrderService -> EquipmentRepository : MarkOperational()
   WorkOrderService -> AuditRepository : Add(oldValues, newValues)
   AuditRepository -> SQLServer : INSERT AuditLog
 end

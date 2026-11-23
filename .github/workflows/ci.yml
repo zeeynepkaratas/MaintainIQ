@@ -1,4 +1,4 @@
-name: Domain CI
+name: Core CI
 
 on:
   push:
@@ -23,13 +23,13 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Restore domain test graph
+      - name: Restore core test graph
         run: dotnet restore tests/MaintainIQ.Tests/MaintainIQ.Tests.csproj
 
-      - name: Build domain test graph
+      - name: Build core test graph
         run: dotnet build tests/MaintainIQ.Tests/MaintainIQ.Tests.csproj --no-restore --configuration Release --warnaserror
 
-      - name: Test with domain coverage
+      - name: Test with core coverage
         run: >-
           dotnet test tests/MaintainIQ.Tests/MaintainIQ.Tests.csproj
           --no-build
@@ -40,20 +40,30 @@ jobs:
           --filter "Category!=SqlServerIntegration"
           --results-directory TestResults
 
-      - name: Enforce 85 percent domain line coverage
+      - name: Enforce layer coverage thresholds
         shell: pwsh
         run: |
           $report = Get-ChildItem TestResults -Filter coverage.cobertura.xml -Recurse | Select-Object -First 1
           if (-not $report) { throw "Coverage report was not produced." }
           [xml]$coverage = Get-Content $report.FullName -Raw
-          $lineRate = [double]$coverage.coverage.'line-rate'
-          Write-Host ("Domain line coverage: {0:P2}" -f $lineRate)
-          if ($lineRate -lt 0.85) { throw "Domain line coverage is below 85%." }
+          $thresholds = @{
+            'MaintainIQ.Domain' = 0.85
+            'MaintainIQ.Services' = 0.70
+          }
+          foreach ($layer in $thresholds.Keys) {
+            $package = $coverage.coverage.packages.package | Where-Object { $_.name -eq $layer }
+            if (-not $package) { throw "$layer coverage was not produced." }
+            $lineRate = [double]$package.'line-rate'
+            Write-Host ("{0} line coverage: {1:P2}" -f $layer, $lineRate)
+            if ($lineRate -lt $thresholds[$layer]) {
+              throw "$layer line coverage is below $($thresholds[$layer] * 100)%."
+            }
+          }
 
       - name: Upload coverage
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: domain-coverage
+          name: core-coverage
           path: TestResults/**/coverage.cobertura.xml
           if-no-files-found: warn

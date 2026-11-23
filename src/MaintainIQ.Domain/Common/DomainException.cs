@@ -26,3 +26,11 @@ public sealed class BusinessRuleException : DomainException
 
     public string RuleCode { get; }
 }
+
+public sealed class PermissionDeniedException : DomainException
+{
+    public PermissionDeniedException(string message)
+        : base(message)
+    {
+    }
+}

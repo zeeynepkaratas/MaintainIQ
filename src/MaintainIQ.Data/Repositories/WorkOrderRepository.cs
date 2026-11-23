@@ -4,6 +4,7 @@ using MaintainIQ.Data.Persistence.Rows;
 using MaintainIQ.Data.ReadModels;
 using MaintainIQ.Data.Transactions;
 using MaintainIQ.Domain.Entities;
+using MaintainIQ.Domain.ValueObjects;
 
 namespace MaintainIQ.Data.Repositories;
 
@@ -171,6 +172,82 @@ public sealed class WorkOrderRepository(IUnitOfWork unitOfWork)
         var rows = await UnitOfWork.Connection.QueryAsync<WorkOrderRow>(
             Command(sql, new { EquipmentId = equipmentId }, cancellationToken)).ConfigureAwait(false);
         return rows.Select(EntityMappers.ToDomain).ToArray();
+    }
+
+    public Task AddPartAsync(
+        int workOrderId,
+        WorkOrderPart part,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            INSERT dbo.WorkOrderPart
+                (WorkOrderId, SparePartId, Quantity, UnitCostSnapshot, Currency, CreatedAt, UpdatedAt)
+            VALUES
+                (@WorkOrderId, @SparePartId, @Quantity, @UnitCostSnapshot, @Currency, @CreatedAt, @UpdatedAt);
+            """;
+        return UnitOfWork.Connection.ExecuteAsync(Command(sql, new
+        {
+            WorkOrderId = workOrderId,
+            part.SparePartId,
+            part.Quantity,
+            UnitCostSnapshot = part.UnitCostSnapshot.Amount,
+            part.UnitCostSnapshot.Currency,
+            part.CreatedAt,
+            part.UpdatedAt,
+        }, cancellationToken));
+    }
+
+    public Task AddStatusHistoryAsync(
+        int workOrderId,
+        WorkOrderStatusHistoryEntry entry,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            INSERT dbo.WorkOrderStatusHistory
+                (WorkOrderId, FromStatus, ToStatus, ChangedByPersonId, ChangedAt, Reason, CreatedAt, UpdatedAt)
+            VALUES
+                (@WorkOrderId, @FromStatus, @ToStatus, @ChangedByPersonId, @ChangedAt, @Reason, @CreatedAt, @UpdatedAt);
+            """;
+        return UnitOfWork.Connection.ExecuteAsync(Command(sql, new
+        {
+            WorkOrderId = workOrderId,
+            FromStatus = (byte)entry.FromStatus,
+            ToStatus = (byte)entry.ToStatus,
+            entry.ChangedByPersonId,
+            entry.ChangedAt,
+            entry.Reason,
+            entry.CreatedAt,
+            entry.UpdatedAt,
+        }, cancellationToken));
+    }
+
+    public Task<bool> HasScheduleConflictAsync(
+        int technicianId,
+        DateRange plannedWindow,
+        int? excludedWorkOrderId = null,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT CAST(CASE WHEN EXISTS
+            (
+                SELECT 1
+                FROM dbo.WorkOrder
+                WHERE AssignedTechnicianId = @TechnicianId
+                  AND (@ExcludedWorkOrderId IS NULL OR Id <> @ExcludedWorkOrderId)
+                  AND Status IN (2, 3, 4)
+                  AND PlannedStartAt IS NOT NULL
+                  AND PlannedEndAt IS NOT NULL
+                  AND PlannedStartAt < @PlannedEndAt
+                  AND @PlannedStartAt < PlannedEndAt
+            ) THEN 1 ELSE 0 END AS bit);
+            """;
+        return UnitOfWork.Connection.ExecuteScalarAsync<bool>(Command(sql, new
+        {
+            TechnicianId = technicianId,
+            ExcludedWorkOrderId = excludedWorkOrderId,
+            PlannedStartAt = plannedWindow.Start,
+            PlannedEndAt = plannedWindow.End,
+        }, cancellationToken));
     }
 
     private static object Parameters(WorkOrder entity)

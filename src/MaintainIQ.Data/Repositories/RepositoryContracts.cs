@@ -1,5 +1,6 @@
 using MaintainIQ.Data.ReadModels;
 using MaintainIQ.Domain.Entities;
+using MaintainIQ.Domain.ValueObjects;
 
 namespace MaintainIQ.Data.Repositories;
 
@@ -17,6 +18,13 @@ public interface IWorkOrderRepository : IRepository<WorkOrder>
     Task<IReadOnlyList<WorkOrderListItemDto>> SearchAsync(WorkOrderFilter filter, CancellationToken cancellationToken = default);
     Task<WorkOrder?> GetWithPartsAsync(int id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<WorkOrder>> GetOpenForEquipmentAsync(int equipmentId, CancellationToken cancellationToken = default);
+    Task AddPartAsync(int workOrderId, WorkOrderPart part, CancellationToken cancellationToken = default);
+    Task AddStatusHistoryAsync(int workOrderId, WorkOrderStatusHistoryEntry entry, CancellationToken cancellationToken = default);
+    Task<bool> HasScheduleConflictAsync(
+        int technicianId,
+        DateRange plannedWindow,
+        int? excludedWorkOrderId = null,
+        CancellationToken cancellationToken = default);
 }
 
 public interface IFailureRepository : IRepository<Failure>;

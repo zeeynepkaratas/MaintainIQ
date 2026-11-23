@@ -36,6 +36,13 @@ public abstract class Person : BaseEntity
     public void Activate() => IsActive = true;
 
     public void Deactivate() => IsActive = false;
+
+    public void UpdateProfile(string firstName, string lastName, DateTimeOffset changedAt)
+    {
+        FirstName = Guard.Required(firstName, "Ad", 80);
+        LastName = Guard.Required(lastName, "Soyad", 80);
+        MarkUpdated(changedAt);
+    }
 }
 
 public sealed class Technician : Person
