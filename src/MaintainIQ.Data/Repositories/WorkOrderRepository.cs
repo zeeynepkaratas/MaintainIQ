@@ -250,6 +250,25 @@ public sealed class WorkOrderRepository(IUnitOfWork unitOfWork)
         }, cancellationToken));
     }
 
+    public Task<bool> ExistsPreventiveOccurrenceAsync(
+        int maintenancePlanId,
+        DateOnly dueDate,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT CAST(CASE WHEN EXISTS
+            (
+                SELECT 1 FROM dbo.WorkOrder WITH (UPDLOCK, HOLDLOCK)
+                WHERE MaintenancePlanId = @MaintenancePlanId AND DueDate = @DueDate
+            ) THEN 1 ELSE 0 END AS bit);
+            """;
+        return UnitOfWork.Connection.ExecuteScalarAsync<bool>(Command(sql, new
+        {
+            MaintenancePlanId = maintenancePlanId,
+            DueDate = dueDate.ToDateTime(TimeOnly.MinValue),
+        }, cancellationToken));
+    }
+
     private static object Parameters(WorkOrder entity)
     {
         var corrective = entity as CorrectiveWorkOrder;

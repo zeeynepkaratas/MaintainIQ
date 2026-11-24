@@ -11,6 +11,7 @@ public interface IEquipmentRepository : IRepository<Equipment>
     Task<IReadOnlyList<EquipmentTreeItemDto>> GetPathAsync(int id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Equipment>> SearchAsync(string filter, CancellationToken cancellationToken = default);
     Task<bool> ExistsOpenWorkAsync(int id, CancellationToken cancellationToken = default);
+    Task<Equipment?> GetByQrTokenAsync(string qrToken, CancellationToken cancellationToken = default);
 }
 
 public interface IWorkOrderRepository : IRepository<WorkOrder>
@@ -25,6 +26,7 @@ public interface IWorkOrderRepository : IRepository<WorkOrder>
         DateRange plannedWindow,
         int? excludedWorkOrderId = null,
         CancellationToken cancellationToken = default);
+    Task<bool> ExistsPreventiveOccurrenceAsync(int maintenancePlanId, DateOnly dueDate, CancellationToken cancellationToken = default);
 }
 
 public interface IFailureRepository : IRepository<Failure>;
@@ -40,6 +42,7 @@ public interface IStockMovementRepository : IRepository<StockMovement>;
 public interface IMaintenancePlanRepository : IRepository<MaintenancePlan>
 {
     Task<IReadOnlyList<MaintenancePlan>> GetDueAsync(DateOnly date, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<MaintenancePlan>> GetForEquipmentAsync(int equipmentId, CancellationToken cancellationToken = default);
 }
 
 public interface ITechnicianRepository : IRepository<Technician>;
@@ -58,6 +61,12 @@ public interface IAuditRepository : IRepository<AuditLog>;
 
 public interface IReportQueries
 {
-    Task<MaintenanceKpiDto> GetMaintenanceKpisAsync(DateOnly from, DateOnly to, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<WorkOrderListItemDto>> GetWorkOrderReportAsync(WorkOrderFilter filter, CancellationToken cancellationToken = default);
+    Task<KpiFactSet> GetKpiFactsAsync(AnalyticsScope scope, DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FailureParetoItemDto>> GetFailureParetoAsync(AnalyticsScope scope, DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<MonthlyFailureTrendDto>> GetMonthlyFailureTrendAsync(AnalyticsScope scope, DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<PartConsumptionDto>> GetTopPartConsumptionAsync(AnalyticsScope scope, DateTimeOffset from, DateTimeOffset to, int top, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<EquipmentCostDto>> GetEquipmentCostsAsync(AnalyticsScope scope, DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TechnicianWorkloadDto>> GetTechnicianWorkloadAsync(DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
+    Task<int> GetCriticalStockCountAsync(CancellationToken cancellationToken = default);
+    Task<AdvisorFactSet> GetAdvisorFactsAsync(AnalyticsScope scope, DateTimeOffset now, int lookbackDays, CancellationToken cancellationToken = default);
 }

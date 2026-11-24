@@ -18,6 +18,7 @@ public interface IEquipmentService
     Task MoveAsync(int equipmentId, int? newParentId, CancellationToken cancellationToken = default);
     Task DeleteAsync(int equipmentId, CancellationToken cancellationToken = default);
     Task ChangeStatusAsync(int equipmentId, EquipmentStatus status, CancellationToken cancellationToken = default);
+    Task SetReliabilityProfileAsync(int equipmentId, bool isCritical, DateOnly? warrantyEndDate, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<EquipmentTreeItemDto>> GetTreeAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Domain.Entities.Equipment>> SearchAsync(string filter, CancellationToken cancellationToken = default);
 }
@@ -67,6 +68,26 @@ public sealed class EquipmentService(
             await _audit.WriteAsync(
                 session, nameof(Domain.Entities.Equipment), equipment.Id.ToString(), "Updated",
                 oldValues, new { equipment.Name, equipment.Location }, now, cancellationToken).ConfigureAwait(false);
+        }, cancellationToken);
+    }
+
+    public Task SetReliabilityProfileAsync(
+        int equipmentId,
+        bool isCritical,
+        DateOnly? warrantyEndDate,
+        CancellationToken cancellationToken = default)
+    {
+        permissions.Ensure(Permission.ManageEquipment);
+        return InTransactionAsync(async session =>
+        {
+            var equipment = await RequireAsync(session, equipmentId, cancellationToken).ConfigureAwait(false);
+            var oldValues = new { equipment.IsCritical, equipment.WarrantyEndDate };
+            var now = clock.UtcNow;
+            equipment.SetReliabilityProfile(isCritical, warrantyEndDate, now);
+            await session.Equipment.UpdateAsync(equipment, cancellationToken).ConfigureAwait(false);
+            await _audit.WriteAsync(
+                session, nameof(Domain.Entities.Equipment), equipment.Id.ToString(), "ReliabilityProfileChanged",
+                oldValues, new { equipment.IsCritical, equipment.WarrantyEndDate }, now, cancellationToken).ConfigureAwait(false);
         }, cancellationToken);
     }
 

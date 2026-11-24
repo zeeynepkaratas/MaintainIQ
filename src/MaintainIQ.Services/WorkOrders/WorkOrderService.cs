@@ -149,6 +149,19 @@ public sealed class WorkOrderService(
                 await session.Equipment.UpdateAsync(equipment, cancellationToken).ConfigureAwait(false);
             }
 
+            if (order is PreventiveWorkOrder preventive)
+            {
+                var plan = await session.MaintenancePlans.GetByIdAsync(preventive.MaintenancePlanId, cancellationToken).ConfigureAwait(false)
+                    ?? throw new EntityNotFoundException(nameof(MaintenancePlan), preventive.MaintenancePlanId);
+                var planBefore = new { plan.NextDueDate, plan.LastDoneAt };
+                plan.RecordCompletion(now);
+                await session.MaintenancePlans.UpdateAsync(plan, cancellationToken).ConfigureAwait(false);
+                await _audit.WriteAsync(
+                    session, nameof(MaintenancePlan), plan.Id.ToString(), "CompletionRecorded",
+                    planBefore, new { plan.NextDueDate, plan.LastDoneAt, WorkOrderId = order.Id },
+                    now, cancellationToken).ConfigureAwait(false);
+            }
+
             await _audit.WriteAsync(
                 session, nameof(WorkOrder), order.Id.ToString(), "Completed",
                 before, Snapshot(order), now, cancellationToken).ConfigureAwait(false);

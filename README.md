@@ -48,6 +48,40 @@ dotnet test tests/MaintainIQ.Tests/MaintainIQ.Tests.csproj --filter "Category!=S
 dotnet test tests/MaintainIQ.Tests/MaintainIQ.Tests.csproj --filter "Category=SqlServerIntegration"
 ```
 
+## KPI formülleri
+
+KPI'lar Ek E tanımlarıyla `KpiCalculator` içinde tek yerde hesaplanır. SQL tarafı (`ReportQueries`) kapsamı
+özyinelemeli CTE ile seçer (tüm tesis / alt ağaç / tek ekipman), Pareto, trend ve sıralamaları pencere
+fonksiyonlarıyla üretir.
+
+| KPI | Formül |
+|---|---|
+| MTTR | Σ(tamamlanma − başlangıç) / tamamlanan düzeltici iş emri |
+| MTBF | (çalışma süresi − Σ duruş) / arıza sayısı; arıza yoksa "arızasız" |
+| Availability | (çalışma süresi − Σ duruş) / çalışma süresi |
+| PM uyum | tolerans içinde tamamlanan / değerlendirilebilir önleyici iş emri |
+| Backlog | açık iş emri sayısı (0-7 / 8-30 / 30+ gün yaş dağılımı) |
+
+Tüm tanımlar, elle hesaplanmış örnek ve yürütme planı notu: [docs/kpi.md](docs/kpi.md).
+
+## Advisor kuralları
+
+Advisor yalnızca önerir; iş emri veya plan değişikliğini kullanıcı onaylar. Her önerinin kanıt listesi vardır
+(arıza numaraları, tarihler, iş emirleri). Eşikler `appsettings.json` içindeki `Advisor` bölümündedir.
+
+| Kural | Tetikleyici (varsayılan eşik) | Önerilen eylem |
+|---|---|---|
+| R1 | Son 183 günde ≥ 3 arıza | Bakım aralığını kısalt |
+| R2 | Aynı ekipmanda aynı neden kodu ≥ 3 kez | Kök neden incelemesi |
+| R3 | Bir parça son 90 günde ≥ 3 iş emrinde değişti | Minimum stoğu artır |
+| R4 | Ortalama onarım süresi > 8 saat (en az 2 onarım) | Süreç incelemesi |
+| R5 | Vadesi geçmiş bakım planı (kritik ekipmanda kritik önem) | Bakımı önceliklendir |
+| R6 | Garanti bitişine ≤ 30 gün | Garanti bitmeden kontrol |
+| R7 | Kritik ekipmanda çözülmemiş kritik arıza | Hemen düzeltici iş emri |
+
+`Advisor:Mode = Llm` isteğe bağlı bir stub'dır. API anahtarı `MAINTAINIQ_LLM_API_KEY` ortam değişkeninden
+okunur, repoya girmez. Anahtar ya da bağlantı yoksa sistem otomatik olarak kural moduna düşer.
+
 ## Projeler
 
 - `MaintainIQ.Domain`: İş kuralları ve model.

@@ -485,3 +485,6 @@ $RECYCLE.BIN/
 
 # Local database settings
 appsettings.Development.json
+
+# Uygulama tarafından yüklenen ekler
+App_Data/

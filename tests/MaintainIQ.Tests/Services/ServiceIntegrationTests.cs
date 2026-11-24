@@ -351,6 +351,8 @@ public sealed class ServiceIntegrationTests
             Technicians = new TechnicianRepository(unitOfWork);
             Users = new UserRepository(unitOfWork);
             Audit = new ThrowingAuditRepository();
+            MaintenancePlans = new MaintenancePlanRepository(unitOfWork);
+            Attachments = new AttachmentRepository(unitOfWork);
         }
 
         public IUnitOfWork UnitOfWork { get; }
@@ -362,6 +364,8 @@ public sealed class ServiceIntegrationTests
         public ITechnicianRepository Technicians { get; }
         public IUserRepository Users { get; }
         public IAuditRepository Audit { get; }
+        public IMaintenancePlanRepository MaintenancePlans { get; }
+        public IAttachmentRepository Attachments { get; }
         public ValueTask DisposeAsync() => UnitOfWork.DisposeAsync();
     }
 
