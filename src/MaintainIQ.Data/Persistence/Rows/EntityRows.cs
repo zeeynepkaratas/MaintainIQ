@@ -17,6 +17,8 @@ internal sealed class EquipmentRow : EntityRow
     public string? QrToken { get; init; }
     public byte Status { get; init; }
     public bool IsDeleted { get; init; }
+    public bool IsCritical { get; init; }
+    public DateTime? WarrantyEndDate { get; init; }
 }
 
 internal sealed class SparePartRow : EntityRow
@@ -52,6 +54,8 @@ internal sealed class MaintenancePlanRow : EntityRow
     public int EstimatedDurationMinutes { get; init; }
     public DateTime NextDueDate { get; init; }
     public bool IsActive { get; init; }
+    public DateTime? AnchorDate { get; init; }
+    public DateTimeOffset? LastDoneAt { get; init; }
 }
 
 internal sealed class TechnicianRow : EntityRow

@@ -13,7 +13,7 @@ public sealed class EquipmentRepository(IUnitOfWork unitOfWork)
     public override async Task<Equipment?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT Id, ParentId, Code, Name, Location, QrToken, Status, IsDeleted, CreatedAt, UpdatedAt, RowVersion
+            SELECT Id, ParentId, Code, Name, Location, QrToken, Status, IsDeleted, IsCritical, WarrantyEndDate, CreatedAt, UpdatedAt, RowVersion
             FROM dbo.Equipment
             WHERE Id = @Id AND IsDeleted = 0;
             """;
@@ -25,7 +25,7 @@ public sealed class EquipmentRepository(IUnitOfWork unitOfWork)
     public override async Task<IReadOnlyList<Equipment>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT Id, ParentId, Code, Name, Location, QrToken, Status, IsDeleted, CreatedAt, UpdatedAt, RowVersion
+            SELECT Id, ParentId, Code, Name, Location, QrToken, Status, IsDeleted, IsCritical, WarrantyEndDate, CreatedAt, UpdatedAt, RowVersion
             FROM dbo.Equipment WHERE IsDeleted = 0 ORDER BY Code;
             """;
         var rows = await UnitOfWork.Connection.QueryAsync<EquipmentRow>(
@@ -36,9 +36,9 @@ public sealed class EquipmentRepository(IUnitOfWork unitOfWork)
     public override async Task<int> AddAsync(Equipment entity, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            INSERT dbo.Equipment (ParentId, Code, Name, Location, QrToken, Status, IsDeleted, CreatedAt, UpdatedAt)
+            INSERT dbo.Equipment (ParentId, Code, Name, Location, QrToken, Status, IsDeleted, IsCritical, WarrantyEndDate, CreatedAt, UpdatedAt)
             OUTPUT INSERTED.Id
-            VALUES (@ParentId, @Code, @Name, @Location, @QrToken, @Status, @IsDeleted, @CreatedAt, @UpdatedAt);
+            VALUES (@ParentId, @Code, @Name, @Location, @QrToken, @Status, @IsDeleted, @IsCritical, @WarrantyEndDate, @CreatedAt, @UpdatedAt);
             """;
         return await UnitOfWork.Connection.ExecuteScalarAsync<int>(Command(sql, new
         {
@@ -49,6 +49,8 @@ public sealed class EquipmentRepository(IUnitOfWork unitOfWork)
             entity.QrToken,
             Status = (byte)entity.Status,
             entity.IsDeleted,
+            entity.IsCritical,
+            WarrantyEndDate = ToDate(entity.WarrantyEndDate),
             entity.CreatedAt,
             entity.UpdatedAt,
         }, cancellationToken)).ConfigureAwait(false);
@@ -59,7 +61,8 @@ public sealed class EquipmentRepository(IUnitOfWork unitOfWork)
         const string sql = """
             UPDATE dbo.Equipment
             SET ParentId = @ParentId, Code = @Code, Name = @Name, Location = @Location,
-                QrToken = @QrToken, Status = @Status, IsDeleted = @IsDeleted, UpdatedAt = @UpdatedAt
+                QrToken = @QrToken, Status = @Status, IsDeleted = @IsDeleted, IsCritical = @IsCritical,
+                WarrantyEndDate = @WarrantyEndDate, UpdatedAt = @UpdatedAt
             WHERE Id = @Id AND RowVersion = @RowVersion;
             """;
         var affected = await UnitOfWork.Connection.ExecuteAsync(Command(sql, new
@@ -72,6 +75,8 @@ public sealed class EquipmentRepository(IUnitOfWork unitOfWork)
             entity.QrToken,
             Status = (byte)entity.Status,
             entity.IsDeleted,
+            entity.IsCritical,
+            WarrantyEndDate = ToDate(entity.WarrantyEndDate),
             entity.UpdatedAt,
             entity.RowVersion,
         }, cancellationToken)).ConfigureAwait(false);
@@ -151,7 +156,7 @@ public sealed class EquipmentRepository(IUnitOfWork unitOfWork)
     public async Task<IReadOnlyList<Equipment>> SearchAsync(string filter, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT Id, ParentId, Code, Name, Location, QrToken, Status, IsDeleted, CreatedAt, UpdatedAt, RowVersion
+            SELECT Id, ParentId, Code, Name, Location, QrToken, Status, IsDeleted, IsCritical, WarrantyEndDate, CreatedAt, UpdatedAt, RowVersion
             FROM dbo.Equipment
             WHERE IsDeleted = 0 AND (Code LIKE @Filter OR Name LIKE @Filter OR Location LIKE @Filter)
             ORDER BY Code;
@@ -171,4 +176,18 @@ public sealed class EquipmentRepository(IUnitOfWork unitOfWork)
             """;
         return UnitOfWork.Connection.ExecuteScalarAsync<bool>(Command(sql, new { Id = id }, cancellationToken));
     }
+
+    public async Task<Equipment?> GetByQrTokenAsync(string qrToken, CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT Id, ParentId, Code, Name, Location, QrToken, Status, IsDeleted, IsCritical, WarrantyEndDate, CreatedAt, UpdatedAt, RowVersion
+            FROM dbo.Equipment
+            WHERE QrToken = @QrToken AND IsDeleted = 0;
+            """;
+        var row = await UnitOfWork.Connection.QuerySingleOrDefaultAsync<EquipmentRow>(
+            Command(sql, new { QrToken = qrToken }, cancellationToken)).ConfigureAwait(false);
+        return row?.ToDomain();
+    }
+
+    private static DateTime? ToDate(DateOnly? value) => value?.ToDateTime(TimeOnly.MinValue);
 }

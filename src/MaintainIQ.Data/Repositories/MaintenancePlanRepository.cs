@@ -10,12 +10,12 @@ public sealed class MaintenancePlanRepository : Repository<MaintenancePlan>, IMa
 {
     private const string ById = """
         SELECT Id, EquipmentId, Name, PeriodValue, PeriodUnit, Priority, EstimatedDurationMinutes,
-               NextDueDate, IsActive, CreatedAt, UpdatedAt, RowVersion
+               NextDueDate, IsActive, AnchorDate, LastDoneAt, CreatedAt, UpdatedAt, RowVersion
         FROM dbo.MaintenancePlan WHERE Id=@Id;
         """;
     private const string All = """
         SELECT Id, EquipmentId, Name, PeriodValue, PeriodUnit, Priority, EstimatedDurationMinutes,
-               NextDueDate, IsActive, CreatedAt, UpdatedAt, RowVersion
+               NextDueDate, IsActive, AnchorDate, LastDoneAt, CreatedAt, UpdatedAt, RowVersion
         FROM dbo.MaintenancePlan ORDER BY NextDueDate, Id;
         """;
     private readonly InternalCrudReader<MaintenancePlan, MaintenancePlanRow> _reader;
@@ -29,7 +29,7 @@ public sealed class MaintenancePlanRepository : Repository<MaintenancePlan>, IMa
     {
         const string sql = """
             SELECT Id, EquipmentId, Name, PeriodValue, PeriodUnit, Priority, EstimatedDurationMinutes,
-                   NextDueDate, IsActive, CreatedAt, UpdatedAt, RowVersion
+                   NextDueDate, IsActive, AnchorDate, LastDoneAt, CreatedAt, UpdatedAt, RowVersion
             FROM dbo.MaintenancePlan WHERE IsActive=1 AND NextDueDate<=@Date ORDER BY NextDueDate;
             """;
         var rows = await UnitOfWork.Connection.QueryAsync<MaintenancePlanRow>(Command(
@@ -37,13 +37,25 @@ public sealed class MaintenancePlanRepository : Repository<MaintenancePlan>, IMa
         return rows.Select(EntityMappers.ToDomain).ToArray();
     }
 
+    public async Task<IReadOnlyList<MaintenancePlan>> GetForEquipmentAsync(int equipmentId, CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT Id, EquipmentId, Name, PeriodValue, PeriodUnit, Priority, EstimatedDurationMinutes,
+                   NextDueDate, IsActive, AnchorDate, LastDoneAt, CreatedAt, UpdatedAt, RowVersion
+            FROM dbo.MaintenancePlan WHERE EquipmentId=@EquipmentId ORDER BY NextDueDate, Id;
+            """;
+        var rows = await UnitOfWork.Connection.QueryAsync<MaintenancePlanRow>(Command(
+            sql, new { EquipmentId = equipmentId }, cancellationToken)).ConfigureAwait(false);
+        return rows.Select(EntityMappers.ToDomain).ToArray();
+    }
+
     public override Task<int> AddAsync(MaintenancePlan x, CancellationToken cancellationToken = default)
     {
         const string sql = """
             INSERT dbo.MaintenancePlan
-                (EquipmentId,Name,PeriodValue,PeriodUnit,Priority,EstimatedDurationMinutes,NextDueDate,IsActive,CreatedAt,UpdatedAt)
+                (EquipmentId,Name,PeriodValue,PeriodUnit,Priority,EstimatedDurationMinutes,NextDueDate,IsActive,AnchorDate,LastDoneAt,CreatedAt,UpdatedAt)
             OUTPUT INSERTED.Id
-            VALUES (@EquipmentId,@Name,@PeriodValue,@PeriodUnit,@Priority,@EstimatedDurationMinutes,@NextDueDate,@IsActive,@CreatedAt,@UpdatedAt);
+            VALUES (@EquipmentId,@Name,@PeriodValue,@PeriodUnit,@Priority,@EstimatedDurationMinutes,@NextDueDate,@IsActive,@AnchorDate,@LastDoneAt,@CreatedAt,@UpdatedAt);
             """;
         return UnitOfWork.Connection.ExecuteScalarAsync<int>(Command(sql, Params(x), cancellationToken));
     }
@@ -52,7 +64,7 @@ public sealed class MaintenancePlanRepository : Repository<MaintenancePlan>, IMa
         const string sql = """
             UPDATE dbo.MaintenancePlan SET Name=@Name,PeriodValue=@PeriodValue,PeriodUnit=@PeriodUnit,
                 Priority=@Priority,EstimatedDurationMinutes=@EstimatedDurationMinutes,NextDueDate=@NextDueDate,
-                IsActive=@IsActive,UpdatedAt=@UpdatedAt WHERE Id=@Id AND RowVersion=@RowVersion;
+                IsActive=@IsActive,AnchorDate=@AnchorDate,LastDoneAt=@LastDoneAt,UpdatedAt=@UpdatedAt WHERE Id=@Id AND RowVersion=@RowVersion;
             """;
         EnsureUpdated(await UnitOfWork.Connection.ExecuteAsync(Command(sql, Params(x), cancellationToken)).ConfigureAwait(false), nameof(MaintenancePlan));
     }
@@ -65,6 +77,7 @@ public sealed class MaintenancePlanRepository : Repository<MaintenancePlan>, IMa
     {
         x.Id,x.EquipmentId,x.Name,x.PeriodValue,PeriodUnit=(byte)x.PeriodUnit,Priority=(byte)x.Priority,
         x.EstimatedDurationMinutes,NextDueDate=x.NextDueDate.ToDateTime(TimeOnly.MinValue),x.IsActive,
+        AnchorDate=x.AnchorDate.ToDateTime(TimeOnly.MinValue),x.LastDoneAt,
         x.CreatedAt,x.UpdatedAt,x.RowVersion,
     };
 }

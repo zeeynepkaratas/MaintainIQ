@@ -12,7 +12,7 @@ DECLARE @ActualTableCount int =
 );
 
 IF @ActualTableCount <> @ExpectedTableCount THROW 51000, 'Expected database tables are missing.', 1;
-IF (SELECT COUNT(*) FROM dbo.SchemaVersion) <> 3 THROW 51001, 'Not all migrations are recorded.', 1;
+IF (SELECT COUNT(*) FROM dbo.SchemaVersion) <> 4 THROW 51001, 'Not all migrations are recorded.', 1;
 IF (SELECT COUNT(*) FROM dbo.FailureCause WHERE IsActive = 1) < 7 THROW 51002, 'Reference failure causes are missing.', 1;
 IF OBJECT_ID(N'dbo.vw_EquipmentHierarchy', N'V') IS NULL THROW 51003, 'Equipment hierarchy view is missing.', 1;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.WorkOrder') AND name = N'RowVersion' AND system_type_id = 189)

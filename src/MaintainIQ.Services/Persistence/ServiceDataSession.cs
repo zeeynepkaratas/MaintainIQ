@@ -15,6 +15,8 @@ public interface IServiceDataSession : IAsyncDisposable
     ITechnicianRepository Technicians { get; }
     IUserRepository Users { get; }
     IAuditRepository Audit { get; }
+    IMaintenancePlanRepository MaintenancePlans { get; }
+    IAttachmentRepository Attachments { get; }
 }
 
 public interface IServiceDataSessionFactory
@@ -41,6 +43,8 @@ public sealed class ServiceDataSession : IServiceDataSession
         Technicians = new TechnicianRepository(unitOfWork);
         Users = new UserRepository(unitOfWork);
         Audit = new AuditRepository(unitOfWork);
+        MaintenancePlans = new MaintenancePlanRepository(unitOfWork);
+        Attachments = new AttachmentRepository(unitOfWork);
     }
 
     public IUnitOfWork UnitOfWork { get; }
@@ -52,6 +56,8 @@ public sealed class ServiceDataSession : IServiceDataSession
     public ITechnicianRepository Technicians { get; }
     public IUserRepository Users { get; }
     public IAuditRepository Audit { get; }
+    public IMaintenancePlanRepository MaintenancePlans { get; }
+    public IAttachmentRepository Attachments { get; }
 
     public ValueTask DisposeAsync() => UnitOfWork.DisposeAsync();
 }

@@ -40,6 +40,10 @@ public sealed class Equipment : BaseEntity
 
     public bool IsDeleted { get; private set; }
 
+    public bool IsCritical { get; private set; }
+
+    public DateOnly? WarrantyEndDate { get; private set; }
+
     internal static Equipment Rehydrate(
         int id,
         int? parentId,
@@ -51,13 +55,17 @@ public sealed class Equipment : BaseEntity
         bool isDeleted,
         DateTimeOffset createdAt,
         DateTimeOffset updatedAt,
-        byte[] rowVersion)
+        byte[] rowVersion,
+        bool isCritical = false,
+        DateOnly? warrantyEndDate = null)
     {
         var equipment = new Equipment(code, name, location, createdAt, qrToken)
         {
             _parentId = parentId,
             Status = status,
             IsDeleted = isDeleted,
+            IsCritical = isCritical,
+            WarrantyEndDate = warrantyEndDate,
         };
         equipment.RestorePersistenceState(id, createdAt, updatedAt, rowVersion);
         return equipment;
@@ -114,6 +122,13 @@ public sealed class Equipment : BaseEntity
     {
         Name = Guard.Required(name, "Ekipman adı", 160);
         Location = Guard.Required(location, "Konum", 200);
+        MarkUpdated(changedAt);
+    }
+
+    public void SetReliabilityProfile(bool isCritical, DateOnly? warrantyEndDate, DateTimeOffset changedAt)
+    {
+        IsCritical = isCritical;
+        WarrantyEndDate = warrantyEndDate;
         MarkUpdated(changedAt);
     }
 

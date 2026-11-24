@@ -9,7 +9,8 @@ internal static class EntityMappers
 {
     public static Equipment ToDomain(this EquipmentRow row) => Equipment.Rehydrate(
         row.Id, row.ParentId, row.Code, row.Name, row.Location, row.QrToken,
-        (EquipmentStatus)row.Status, row.IsDeleted, row.CreatedAt, row.UpdatedAt, row.RowVersion);
+        (EquipmentStatus)row.Status, row.IsDeleted, row.CreatedAt, row.UpdatedAt, row.RowVersion,
+        row.IsCritical, row.WarrantyEndDate is DateTime warranty ? DateOnly.FromDateTime(warranty) : null);
 
     public static SparePart ToDomain(this SparePartRow row) => SparePart.Rehydrate(
         row.Id, row.SupplierId, row.Code, row.Name, row.StockQuantity, row.MinimumStock,
@@ -23,7 +24,8 @@ internal static class EntityMappers
     public static MaintenancePlan ToDomain(this MaintenancePlanRow row) => MaintenancePlan.Rehydrate(
         row.Id, row.EquipmentId, row.Name, row.PeriodValue, (MaintenancePeriodUnit)row.PeriodUnit,
         (Priority)row.Priority, row.EstimatedDurationMinutes, DateOnly.FromDateTime(row.NextDueDate),
-        row.IsActive, row.CreatedAt, row.UpdatedAt, row.RowVersion);
+        row.IsActive, row.CreatedAt, row.UpdatedAt, row.RowVersion,
+        row.AnchorDate is DateTime anchor ? DateOnly.FromDateTime(anchor) : null, row.LastDoneAt);
 
     public static Technician ToDomain(this TechnicianRow row) => Technician.Rehydrate(
         row.Id, row.EmployeeNumber, row.FirstName, row.LastName, row.Specialty,

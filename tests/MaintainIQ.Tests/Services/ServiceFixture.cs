@@ -22,6 +22,8 @@ internal sealed class ServiceFixture
         Technicians = Substitute.For<ITechnicianRepository>();
         Users = Substitute.For<IUserRepository>();
         Audit = Substitute.For<IAuditRepository>();
+        MaintenancePlans = Substitute.For<IMaintenancePlanRepository>();
+        Attachments = Substitute.For<IAttachmentRepository>();
 
         Session = Substitute.For<IServiceDataSession>();
         Session.UnitOfWork.Returns(UnitOfWork);
@@ -33,6 +35,8 @@ internal sealed class ServiceFixture
         Session.Technicians.Returns(Technicians);
         Session.Users.Returns(Users);
         Session.Audit.Returns(Audit);
+        Session.MaintenancePlans.Returns(MaintenancePlans);
+        Session.Attachments.Returns(Attachments);
 
         Factory = Substitute.For<IServiceDataSessionFactory>();
         Factory.Create().Returns(Session);
@@ -48,6 +52,8 @@ internal sealed class ServiceFixture
         StockMovements.AddAsync(Arg.Any<MaintainIQ.Domain.Entities.StockMovement>(), Arg.Any<CancellationToken>()).Returns(105);
         Technicians.AddAsync(Arg.Any<MaintainIQ.Domain.Entities.Technician>(), Arg.Any<CancellationToken>()).Returns(106);
         Audit.AddAsync(Arg.Any<MaintainIQ.Domain.Entities.AuditLog>(), Arg.Any<CancellationToken>()).Returns(107);
+        MaintenancePlans.AddAsync(Arg.Any<MaintainIQ.Domain.Entities.MaintenancePlan>(), Arg.Any<CancellationToken>()).Returns(108);
+        Attachments.AddAsync(Arg.Any<MaintainIQ.Domain.Entities.Attachment>(), Arg.Any<CancellationToken>()).Returns(109);
     }
 
     public IUnitOfWork UnitOfWork { get; }
@@ -59,13 +65,15 @@ internal sealed class ServiceFixture
     public ITechnicianRepository Technicians { get; }
     public IUserRepository Users { get; }
     public IAuditRepository Audit { get; }
+    public IMaintenancePlanRepository MaintenancePlans { get; }
+    public IAttachmentRepository Attachments { get; }
     public IServiceDataSession Session { get; }
     public IServiceDataSessionFactory Factory { get; }
     public CurrentUserContext CurrentUser { get; }
     public PermissionService Permissions { get; }
     public IClock Clock { get; }
 
-    private sealed class FixedClock(DateTimeOffset now) : IClock
+    internal sealed class FixedClock(DateTimeOffset now) : IClock
     {
         public DateTimeOffset UtcNow => now;
     }
